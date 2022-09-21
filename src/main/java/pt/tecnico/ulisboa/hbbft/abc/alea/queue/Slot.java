@@ -27,11 +27,15 @@ public class Slot {
         return proof;
     }
 
-    public boolean isRemoved() {
+    synchronized public boolean isRemoved() {
         return removed;
     }
 
-    public void setRemoved() {
+    synchronized public void setRemoved() {
         this.removed = true;
+    }
+
+    public String toString() {
+        return "Slot(" + id + ": " + this.value.length + ")";
     }
 }

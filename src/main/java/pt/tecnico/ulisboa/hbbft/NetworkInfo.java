@@ -37,7 +37,6 @@ public class NetworkInfo {
         this.keyShare = keyShare;
     }
 
-
     // The ID of the node the algorithm runs on.
     public Integer getOurId() {
         return this.ourId;

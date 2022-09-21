@@ -22,38 +22,37 @@ public class WaitingState extends AgreementState {
     public Step<Block> tryProgress() {
         Step<Block> step = new Step<>();
 
-        if (this.canProgress()) {
-            Slot slot = this.getQueue().peek().orElseThrow();
+        synchronized (this.getQueue()) {
+            if (this.canProgress()) {
+                Slot slot = this.getQueue().peek().orElseThrow();
 
-            Collection<byte[]> blockContents;
-            if (this.alea.getParams().getFault(this.getQueue().getId()) == Alea.Params.Fault.BYZANTINE) {
-                blockContents = new ArrayList<>();
-            } else if (!alea.getParams().isBenchmark()) {
-                blockContents = Alea.decodeBatchEntries(slot.getValue());
-            } else {
-                blockContents = new ArrayList<>();
-                for (int i=0; i<alea.getParams().getBatchSize(); i++) blockContents.add(new byte[0]);
-            }
-
-            // Assemble block
-            Block block = new Block(epoch, blockContents);
-            block.setProposers(Collections.singleton(this.getQueue().getId()));
-            step.add(block);
-
-            logger.info("[EPOCH - {}] - Delivered={}.", epoch, blockContents.size());
-
-            // Remove decided value from all queues
-            if (blockContents.size() > 1) {
-                this.getQueue().dequeue(slot.getId());
-            } else {
-                for (PriorityQueue q: this.alea.getQueues().values()) {
-                    q.dequeue(slot.getValue());
+                Collection<byte[]> blockContents;
+                if (this.alea.getParams().getFault(this.getQueue().getId()) == Alea.Params.Fault.BYZANTINE) {
+                    blockContents = new ArrayList<>();
+                } else {
+                    blockContents = Alea.decodeBatchEntries(slot.getValue());
                 }
-            }
 
-            // Progress to next state
-            AgreementState nextState = new ProposingState(alea, epoch+1);
-            step.add(this.alea.setAgreementState(nextState));
+                // Assemble block
+                Block block = new Block(epoch, blockContents);
+                block.setProposers(Collections.singleton(this.getQueue().getId()));
+                step.add(block);
+
+                // logger.info("[EPOCH - {}] - Delivered = ({}) {}.", epoch, blockContents.size(), blockContents);
+
+                // Remove decided value from all queues
+                if (blockContents.size() > 1) {
+                    this.getQueue().dequeue(slot.getId());
+                } else {
+                    for (PriorityQueue q: this.alea.getQueues().values()) {
+                        q.dequeue(slot.getValue());
+                    }
+                }
+
+                // Progress to next state
+                AgreementState nextState = new ProposingState(alea, epoch+1);
+                step.add(this.alea.setAgreementState(nextState));
+            }
         }
         return step;
     }

@@ -7,7 +7,6 @@ import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
 import pt.tecnico.ulisboa.hbbft.Step;
 import pt.tecnico.ulisboa.hbbft.abc.Block;
 import pt.tecnico.ulisboa.hbbft.abc.alea.benchmark.ExecutionLog;
-import pt.tecnico.ulisboa.hbbft.abc.alea.benchmark.Interval;
 import pt.tecnico.ulisboa.hbbft.abc.alea.messages.FillGapMessage;
 import pt.tecnico.ulisboa.hbbft.abc.alea.messages.FillerMessage;
 import pt.tecnico.ulisboa.hbbft.abc.alea.queue.Slot;
@@ -24,9 +23,9 @@ import pt.tecnico.ulisboa.hbbft.vbroadcast.VOutput;
 import pt.tecnico.ulisboa.hbbft.vbroadcast.echo.EchoVBroadcast2;
 
 import java.io.*;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
@@ -36,7 +35,7 @@ import java.util.stream.Stream;
 
 public class Alea implements IAlea {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final static Logger logger = LoggerFactory.getLogger(Alea.class);
 
     // Our ID.
     public final Integer replicaId;
@@ -54,10 +53,10 @@ public class Alea implements IAlea {
     private final AtomicLong priority = new AtomicLong();
 
     // Queue of pending requests (ignored when batching is inactive)
-    private final Queue<byte[]> pendingQueue = new LinkedList<>();
+    private final Queue<byte[]> pendingQueue = new ConcurrentLinkedQueue<>();
 
     // The priority queues (one per replica)
-    private final Map<Integer, PriorityQueue> queues = new TreeMap<>();
+    private final Map<Integer, PriorityQueue> queues = new ConcurrentHashMap<>();
 
     // A map of validated consistent broadcast instances by pid
     private final Map<BcPid, IVBroadcast> bcInstances = new ConcurrentHashMap<>();
@@ -76,10 +75,13 @@ public class Alea implements IAlea {
 
     private final Lock broadcastComponentLock = new ReentrantLock();
     private final Lock agreementComponentLock = new ReentrantLock();
-
     private final ExecutionLog<Block> executionLog = new ExecutionLog<>("ALEA");
-    private final Map<BcPid, ExecutionLog<byte[]>> bcLog = new HashMap<>();
-    private final Map<BaPid, ExecutionLog<Boolean>> baLog = new HashMap<>();
+
+    // Map from broadcast instances id to execution logs
+    // An execution log for a broadcast instance
+    private final Map<BcPid, ExecutionLog<byte[]>> bcLog = new ConcurrentHashMap<>();
+    // Map from binary agreement ids to execution logs
+    private final Map<BaPid, ExecutionLog<Boolean>> baLog = new ConcurrentHashMap<>();
 
     public Alea(Integer replicaId, NetworkInfo networkInfo, Params params) {
         this.replicaId = replicaId;
@@ -157,21 +159,23 @@ public class Alea implements IAlea {
     }
 
     public ExecutionLog<Block> getExecutionLog() {
+        // children = list of all broadcast component logs + all binary agreement logs
         List<ExecutionLog<?>> children = Stream.concat(bcLog.values().stream(), baLog.values().stream())
                 .collect(Collectors.toList());
+
         this.executionLog.setChildren(children);
         return this.executionLog;
     }
 
     @Override
     public Step<Block> handleInput(byte[] input) {
-        //logger.info("handleInput - input:{}", new String(input, StandardCharsets.UTF_8));
+        // logger.info("handleInput called - input:{}", input);
 
         Step<Block> step = new Step<>();
         if (params.getFault(replicaId) == Params.Fault.CRASH) return step;
 
         // Check if the input command was previously executed
-        if (!params.isBenchmark() && this.getExecuted().contains(input)) {
+        if (this.getExecuted().contains(input)) {
             step.addFault("ABC", "CMD ALREADY EXECUTED");
             return step;
         }
@@ -184,14 +188,16 @@ public class Alea implements IAlea {
         }*/
 
         // add input to queue of pending requests
+        // logger.info("adding {} to pending queue {}", input, this.pendingQueue);
         this.pendingQueue.add(input);
+        // logger.info("added to pending queue - {}", this.pendingQueue);
 
         return this.tryPropose();
     }
 
     @Override
     public Step<Block> handleMessage(ProtocolMessage message) {
-        //logger.info("handleMessage - msg:{}", message);
+        // logger.info("handleMessage - msg:{}", message);
         if (params.getFault(replicaId) == Params.Fault.CRASH) return new Step<>();
 
         Step<Block> step;
@@ -237,7 +243,7 @@ public class Alea implements IAlea {
     }
 
     @Override
-    public Step<Block> handleBinaryAgreementMessage(BinaryAgreementMessage message) {
+    public Step<Block> handleBinaryAgreementMessage(BinaryAgreementMessage message){
         BaPid baPid = new BaPid(message.getPid());
         IBinaryAgreement instance = this.getBinaryAgreementInstance(baPid);
         Step<Boolean> baStep = instance.handleMessage(message);
@@ -261,7 +267,7 @@ public class Alea implements IAlea {
 
     @Override
     public Step<Block> handleFillGapMessage(FillGapMessage fillGapMessage) {
-        logger.info(fillGapMessage.toString());
+        // logger.info(fillGapMessage.toString());
         Step<Block> step = new Step<>();
 
         final Integer senderId = fillGapMessage.getSender();
@@ -320,15 +326,22 @@ public class Alea implements IAlea {
         // logger.info("Delivered proposal from replica-{} for slot-{}", bcPid.getQueueId(), bcPid.getSlotId());
 
         // add pre-ordered request to the corresponding priority queue
+        // FIXME: (dsa) when in benchmark mode, adding empty arrays to slots
         PriorityQueue queue = queues.get(bcPid.getQueueId());
-        if (!this.params.isBenchmark()) {
-            VOutput output = bcStep.getOutput().firstElement();
-            queue.enqueue(bcPid.getSlotId(), output.getValue(), output.getSignature());
-            if (this.executed.contains(output.getValue()))
-                queue.dequeue(bcPid.getSlotId());
-        } else {
-            queue.enqueue(bcPid.getSlotId(), new byte[0], bcStep.getOutput().firstElement().getSignature());
-        }
+        VOutput output = bcStep.getOutput().firstElement();
+        queue.enqueue(bcPid.getSlotId(), output.getValue(), output.getSignature());
+        if (this.executed.contains(output.getValue()))
+            queue.dequeue(bcPid.getSlotId());
+
+//        if (!this.params.isBenchmark()) {
+//            VOutput output = bcStep.getOutput().firstElement();
+//            queue.enqueue(bcPid.getSlotId(), output.getValue(), output.getSignature());
+//            if (this.executed.contains(output.getValue()))
+//                queue.dequeue(bcPid.getSlotId());
+//        } else {
+//            queue.enqueue(bcPid.getSlotId(), new byte[0], bcStep.getOutput().firstElement().getSignature());
+//        }
+
 
         // remove VCBC instance
         this.bcInstances.remove(bcPid);
@@ -341,6 +354,7 @@ public class Alea implements IAlea {
         }
 
         step.add(this.tryProgress());
+
         return step;
     }
 
@@ -360,7 +374,8 @@ public class Alea implements IAlea {
 
     private synchronized Step<Block> tryPropose() {
         // do not propose if there is nothing to propose
-        if (!this.params.isBenchmark() && this.pendingQueue.isEmpty()) return new Step<>();
+        // if (!this.params.isBenchmark() && this.pendingQueue.isEmpty()) return new Step<>();
+        if (this.pendingQueue.isEmpty()) return new Step<>();
 
         // do not propose if the number of concurrent VCBC instances exceeds the maximum value in params
         if (this.broadcastState.get() >= this.params.getMaxConcurrentBroadcasts()) return new Step<>();
@@ -369,27 +384,39 @@ public class Alea implements IAlea {
         final long pipelineOffset = this.priority.get() - this.getQueues().get(replicaId).getHead();
         if (pipelineOffset >= params.getMaxPipelineOffset()) return new Step<>();
 
-        // group bending entries into a byte encoded batch
+        // group pending entries into a byte encoded batch
+        // FIXME: (dsa) why different behaviour during benchmark?
         List<byte[]> entries = new ArrayList<>();
-        if (this.params.isBenchmark()) {
-            // randomly generate batch entries
-            Random rd = new Random();
-            for (int i=0; i<params.getBatchSize(); i++) {
-                byte[] entry = new byte[params.getMaxPayloadSize()];
-                rd.nextBytes(entry);
-                entries.add(entry);
-            }
-        } else {
-            // select entries from pending queue
-            synchronized (this.pendingQueue) {
-                if (this.pendingQueue.size() < params.getBatchSize()) return new Step<>();
-                for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
-                    entries.add(this.pendingQueue.poll());
-                }
+
+        // select entries from pending queue
+        synchronized (this.pendingQueue) {
+            if (this.pendingQueue.size() < params.getBatchSize()) return new Step<>();
+            // logger.info("collecting entries. pending queue - {}", this.pendingQueue);
+            for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
+                entries.add(this.pendingQueue.poll());
             }
         }
         if (entries.isEmpty()) return new Step<>();
+        // logger.info("collected batch - {}", entries);
         byte[] batch = encodeBatchEntries(entries);
+
+//        if (this.params.isBenchmark()) {
+//            // randomly generate batch entries
+//            Random rd = new Random();
+//            for (int i=0; i<params.getBatchSize(); i++) {
+//                byte[] entry = new byte[params.getMaxPayloadSize()];
+//                rd.nextBytes(entry);
+//                entries.add(entry);
+//            }
+//        } else {
+//            // select entries from pending queue
+//            synchronized (this.pendingQueue) {
+//                if (this.pendingQueue.size() < params.getBatchSize()) return new Step<>();
+//                for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
+//                    entries.add(this.pendingQueue.poll());
+//                }
+//            }
+//        }
 
         // start new VCBC instances with the encoded batch as input
         BcPid bcPid = new BcPid("VCBC", replicaId, priority.getAndIncrement());
@@ -406,8 +433,10 @@ public class Alea implements IAlea {
     private Step<Block> tryProgress() {
         Step<Block> step = this.agreementState.tryProgress();
         if (!step.getOutput().isEmpty()) {
-            for (Block block: step.getOutput())
+            // logger.info("there's something to output - {}", step.getOutput());
+            for (Block block: step.getOutput()) {
                 executed.add(block.getContent());
+            }
             step.add(this.tryPropose().getMessages());
         }
         return step;
@@ -520,6 +549,7 @@ public class Alea implements IAlea {
     }
 
     public static byte[] encodeBatchEntries(Collection<byte[]> entries) {
+        // logger.info("encodeBatchEntries started - {}", entries);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(baos);
 
@@ -533,10 +563,12 @@ public class Alea implements IAlea {
             e.printStackTrace();
         }
 
+        // logger.info("encodeBatchEntries ended - {}", baos.toByteArray());
         return baos.toByteArray();
     }
 
     public static Collection<byte[]> decodeBatchEntries(byte[] encoded) {
+        // logger.info("decodeBatchEntries started - {}", encoded);
         ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
         DataInputStream in = new DataInputStream(bais);
 
@@ -551,6 +583,7 @@ public class Alea implements IAlea {
             e.printStackTrace();
         }
 
+        // logger.info("decodeBatchEntries ended - {}", entries);
         return entries;
     }
 

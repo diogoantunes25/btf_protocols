@@ -15,6 +15,7 @@ import pt.tecnico.ulisboa.hbbft.subset.SubsetMessage;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DumboSubset implements IAsynchronousCommonSubset {
 
@@ -28,10 +29,10 @@ public class DumboSubset implements IAsynchronousCommonSubset {
     private final BinaryAgreementFactory baFactory;
 
     // The value broadcast instances
-    private final Map<Integer, IBroadcast> vBroadcasts = new TreeMap<>();
+    private final Map<Integer, IBroadcast> vBroadcasts = new ConcurrentHashMap<>();
 
     // The proposed value by replica
-    private final Map<Integer, byte[]> values = new TreeMap<>();
+    private final Map<Integer, byte[]> values = new ConcurrentHashMap<>();
 
     // A committee election protocol instance
     private final CommitteeElection ce;
@@ -39,7 +40,7 @@ public class DumboSubset implements IAsynchronousCommonSubset {
     // The elected committee
     private Set<Integer> committee;
 
-    private final Map<Integer, Proposal> proposals = new TreeMap<>();
+    private final Map<Integer, Proposal> proposals = new ConcurrentHashMap<>();
     private Set<Integer> indices;
 
     // The value decided by this instance
@@ -203,6 +204,7 @@ public class DumboSubset implements IAsynchronousCommonSubset {
     }
 
     private IBroadcast getValueBroadcastInstance(Integer instance) {
+        System.out.println(this.vBroadcasts.getClass().getSimpleName());
         return this.vBroadcasts.computeIfAbsent(instance,
                 id -> this.bcFactory.create(String.format("%s-%d-v", pid, id), id)
         );

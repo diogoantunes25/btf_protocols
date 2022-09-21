@@ -13,6 +13,7 @@ import pt.tecnico.ulisboa.hbbft.subset.SubsetFactory;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
@@ -31,7 +32,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
     private Boolean hasInput = false;
 
     // The sub-protocols for ongoing epochs.
-    private final Map<Long, Epoch> epochs = new TreeMap<>();
+    private final Map<Long, Epoch> epochs = new ConcurrentSkipListMap<>();
 
     // Parameters controlling the ABC behavior and performance.
     private final Params params;
@@ -71,7 +72,6 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
     @Override
     public Step<Block> handleInput(byte[] input) {
-        // logger.info("handleInput - input:{}", input);
         if (params.getFault(replicaId) == Params.Fault.CRASH) return new Step<>();
 
         // add input to the queue of pending transactions
@@ -120,6 +120,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
     }
 
     private Step<Block> tryPropose() {
+        System.out.println("at tryPropose");
         // can only propose once per epoch
         if (this.hasInput) return new Step<>();
 

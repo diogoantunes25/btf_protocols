@@ -1,11 +1,16 @@
 package pt.tecnico.ulisboa.hbbft.abc.alea.queue;
 
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 public class PriorityQueue {
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Integer id;
 
@@ -22,7 +27,7 @@ public class PriorityQueue {
         return id;
     }
 
-    public Long getHead() {
+    synchronized public Long getHead() {
         return this.head;
     }
 
@@ -33,9 +38,10 @@ public class PriorityQueue {
      * @param element the element to insert in the queue.
      * @param proof a cryptographic proof binding the element to this queue slot.
      */
-    public void enqueue(long priority, byte[] element, byte[] proof) {
+    synchronized public void enqueue(long priority, byte[] element, byte[] proof) {
         Slot slot = new Slot(priority, element, proof);
         this.slots.putIfAbsent(priority, slot);
+        // logger.info("[{}] enqueue called - contents: {}", this.id, this.slots);
     }
 
     /**
@@ -44,15 +50,16 @@ public class PriorityQueue {
      * @param priority the priority value of the element to remove.
      * @return the queue slot at the position mapped by the priority value.
      */
-    public Optional<Slot> dequeue(long priority) {
+    synchronized public Optional<Slot> dequeue(long priority) {
         this.slots.get(priority).setRemoved();
         while (this.peek().isPresent() && this.peek().get().isRemoved()) {
             this.head += 1;
         }
+        // logger.info("[{}] dequeue called - contents: {}", this.id, this.slots);
         return Optional.empty();
     }
 
-    public Optional<Slot> dequeue(byte[] element) {
+    synchronized public Optional<Slot> dequeue(byte[] element) {
         for (Map.Entry<Long, Slot> entry : slots.entrySet()) {
             if (Arrays.equals(element, entry.getValue().getValue())) {
                 entry.getValue().setRemoved();
@@ -60,9 +67,11 @@ public class PriorityQueue {
                     while (this.peek().isPresent() && this.peek().get().isRemoved())
                         this.head += 1;
                 }
+                // logger.info("[{}] dequeue called - contents: {}", this.id, this.slots);
                 return Optional.of(entry.getValue());
             }
         }
+        // logger.info("[{}] dequeue called - contents: {}", this.id, this.slots);
         return Optional.empty();
     }
 
@@ -72,7 +81,8 @@ public class PriorityQueue {
      * @param priority the priority value of the element to retrieve.
      * @return the queue slot at the position mapped by the priority value.
      */
-    public Optional<Slot> get(long priority) {
+    synchronized public Optional<Slot> get(long priority) {
+        // logger.info("[{}] get called - contents: {}", this.id, this.slots);
         return Optional.ofNullable(this.slots.get(priority));
     }
 
@@ -81,12 +91,13 @@ public class PriorityQueue {
      *
      * @return the slot at the head of the queue.
      */
-    public Optional<Slot> peek() {
+    synchronized public Optional<Slot> peek() {
+        // logger.info("[{}] peek called - contents: {}", this.id, this.slots);
         return this.get(head);
     }
 
     // Whether a value exists in the queue.
-    public Boolean contains(byte[] input) {
+    synchronized public Boolean contains(byte[] input) {
         return this.slots.values().stream()
                 .anyMatch(slot -> Arrays.equals(slot.getValue(), input));
     }

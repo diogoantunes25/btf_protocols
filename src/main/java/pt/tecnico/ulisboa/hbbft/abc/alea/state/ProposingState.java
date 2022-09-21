@@ -14,7 +14,7 @@ public class ProposingState extends AgreementState {
 
     public ProposingState(Alea alea, Long epoch) {
         super(alea, epoch);
-        //logger.info("[EPOCH - {}] - Entered Proposing State.", epoch);
+        // logger.info("[EPOCH - {}] - Entered Proposing State.", epoch);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ProposingState extends AgreementState {
             Step<Boolean> baStep = instance.handleInput(slot.isPresent());
             step.add(baStep.getMessages());
 
-            //logger.info("[EPOCH - {}] - Proposed={}", epoch, proposal);
+            // logger.info("[EPOCH - {}] - Proposed={}", epoch, proposal);
 
             AgreementState nextState = new OngoingState(alea, epoch);
             step.add(this.alea.setAgreementState(nextState));

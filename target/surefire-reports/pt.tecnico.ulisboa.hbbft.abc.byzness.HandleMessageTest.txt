@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest
+-------------------------------------------------------------------------------
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.824 s - in pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest

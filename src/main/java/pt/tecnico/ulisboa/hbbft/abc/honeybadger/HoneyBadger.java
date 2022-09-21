@@ -57,19 +57,18 @@ public class HoneyBadger implements IHoneyBadger {
     public Step<Block> handleInput(byte[] input) {
         //logger.info("handleInput - input:{}", new String(input, StandardCharsets.UTF_8));
         this.queue.add(input);
+        logger.info("Try propose");
         return this.tryPropose();
     }
 
     @Override
     public Step<Block> handleMessage(ProtocolMessage message) {
-        //logger.info("handleMessage - msg:{}", message);
+        logger.info("handleMessage - msg:{}", message);
 
         Step<Block> step = new Step<>();
 
         final String pid = message.getPid().split("\\|")[0];
         final long epochId = Long.parseLong(pid.split("-")[1]);
-
-        // System.out.println(epochId);
 
         if (epochId < this.epoch) {
             System.out.println("OLD MESSAGE");
@@ -124,12 +123,14 @@ public class HoneyBadger implements IHoneyBadger {
 
     private Step<Block> tryPropose() {
         if (this.hasInput) {
+            logger.info("returning empty step");
             return new Step<>();
         }
 
         Epoch epoch = getEpoch(this.epoch);
         Collection<byte[]> proposal = this.queue.get();
         // if (proposal.isEmpty()) return new Step<>();
+        logger.info("Obtained proposal (len is {})", proposal.size());
 
         byte[] encoded = encodeBatchEntries(proposal);
         Step<Batch> step = epoch.handleInput(encoded);

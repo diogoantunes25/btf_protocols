@@ -51,7 +51,8 @@ public class Block {
     public String toString() {
         StringBuilder s = new StringBuilder(String.format("Block #%d (", number));
         s.append(proposers).append(") = {");
-        s.append(entries.size());
+        // s.append(entries.size());
+        s.append(entries);
         s.append("}");
         return s.toString();
     }

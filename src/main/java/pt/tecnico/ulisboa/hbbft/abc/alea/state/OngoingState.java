@@ -9,7 +9,7 @@ public class OngoingState extends AgreementState {
 
     public OngoingState(Alea alea, Long epoch) {
         super(alea, epoch);
-        //logger.info("[EPOCH - {}] - Entered Ongoing State.", epoch);
+        // logger.info("[EPOCH - {}] - Entered Ongoing State.", epoch);
     }
 
     @Override
@@ -20,7 +20,7 @@ public class OngoingState extends AgreementState {
             IBinaryAgreement instance = this.getBaInstance();
             Boolean decision = instance.deliver().orElseThrow();
 
-            //logger.info("[EPOCH - {}] - Decided={}.", epoch, decision);
+            // logger.info("[EPOCH - {}] - Decided={}.", epoch, decision);
 
             AgreementState nextState;
             if (decision) nextState = new WaitingState(alea, epoch);

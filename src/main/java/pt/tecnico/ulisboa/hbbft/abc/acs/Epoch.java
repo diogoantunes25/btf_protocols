@@ -56,6 +56,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
 
     @Override
     public Step<Batch> handleInput(byte[] input) {
+        System.out.println("at epoch.handleInput");
         if (this.requireEncryption) {
             // TODO encrypt proposal
         }
