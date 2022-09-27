@@ -9,6 +9,7 @@ import pt.tecnico.ulisboa.hbbft.abc.Block;
 import pt.tecnico.ulisboa.hbbft.subset.hbbft.HoneyBadgerSubsetFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class HoneyBadger implements IHoneyBadger {
@@ -55,7 +56,7 @@ public class HoneyBadger implements IHoneyBadger {
 
     @Override
     public Step<Block> handleInput(byte[] input) {
-        //logger.info("handleInput - input:{}", new String(input, StandardCharsets.UTF_8));
+        logger.info("handleInput - input:{}", new String(input, StandardCharsets.UTF_8));
         this.queue.add(input);
         logger.info("Try propose");
         return this.tryPropose();

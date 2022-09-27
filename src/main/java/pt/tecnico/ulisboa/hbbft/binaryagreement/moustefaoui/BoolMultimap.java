@@ -12,6 +12,9 @@ public class BoolMultimap {
         this.values.add(1, new TreeSet<>());
     }
 
+    /**
+     * Get set for boolean b
+     */
     public TreeSet<Integer> getIndex(Boolean b) {
         return this.values.elementAt(b ? 1 : 0);
     }

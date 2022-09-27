@@ -31,6 +31,7 @@ public class OngoingState extends ProposalState {
 
     @Override
     public Step<byte[]> propose(byte[] value) {
+        // logger.info("Proposal {} - proposing {}", this.proposal.getInstance(), value);
         Step<byte[]> bcStep = bc.handleInput(value);
         return this.handleBroadcastStep(bcStep);
     }
@@ -43,6 +44,7 @@ public class OngoingState extends ProposalState {
 
     @Override
     protected Step<byte[]> handleBroadcastMessage(BroadcastMessage broadcastMessage) {
+        // logger.info("Proposal {} - handleBroadcastMessage", this.proposal.getInstance());
         Step<byte[]> bcStep = bc.handleMessage(broadcastMessage);
         return this.handleBroadcastStep(bcStep);
     }
@@ -56,6 +58,7 @@ public class OngoingState extends ProposalState {
     private Step<byte[]> handleBroadcastStep(Step<byte[]> bcStep) {
         Step<byte[]> step = new Step<>(bcStep.getMessages());
         if (bc.hasTerminated()) {
+            // logger.info("broadcast terminated");
             proposal.setState(new HasValueState<>(proposal, bc, ba));
             step.add(proposal.vote(true));
         }

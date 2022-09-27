@@ -7,9 +7,18 @@ import pt.tecnico.ulisboa.hbbft.utils.threshsig.KeyShare;
 import pt.tecnico.ulisboa.hbbft.utils.threshsig.SigShare;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 
+
+/**
+ * Threshold Coin-Tossing Scheme
+ *
+ * Reference: "Random Oracles in Constantinople",
+ * Christian Cachin et all , IBM Research
+ */
 public class Coin {
 
     private final String name;
@@ -47,7 +56,13 @@ public class Coin {
         if (this.shares.size() == this.groupKey.getK()) {
             byte[] toSign = this.getCoinName().getBytes();
             this.signature = new BigInteger(ThreshsigUtils.combine(toSign, this.shares.values(), groupKey));
-            this.decision = (this.signature.mod(new BigInteger("2")).intValue() == 1);
+            // this.decision = (this.signature.mod(new BigInteger("2")).intValue() == 1);
+            try {
+                this.decision = (MessageDigest.getInstance("SHA-256").digest(this.signature.toByteArray())[0] & 1) == 1;
+            }
+            catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
         }
     }
 

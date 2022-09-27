@@ -1,9 +1,14 @@
 package pt.tecnico.ulisboa.hbbft.abc.acs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TransactionQueue {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Integer batchSize;
     private final Integer proposalSize;
@@ -27,6 +32,7 @@ public class TransactionQueue {
     public Collection<byte[]> get() {
         List<byte[]> candidates = this.elements.stream().limit(batchSize).map(Transaction::getValue).collect(Collectors.toList());
         Collections.shuffle(candidates);
+        // logger.info("the candidates are - {} (the proposal size limit is {})", candidates, proposalSize);
         return candidates.stream().limit(proposalSize).collect(Collectors.toList());
     }
 
@@ -36,6 +42,10 @@ public class TransactionQueue {
 
     public void removeAll(Set<byte[]> elements) {
         elements.stream().map(Transaction::new).collect(Collectors.toList()).forEach(this.elements::remove);
+    }
+
+    public String toString() {
+        return "TranscationQueue(" + elements + ")";
     }
 
     private static class Transaction {
@@ -63,5 +73,7 @@ public class TransactionQueue {
         public int hashCode() {
             return Arrays.hashCode(value);
         }
+
+
     }
 }

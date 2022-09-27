@@ -1,10 +1,13 @@
 package pt.tecnico.ulisboa.hbbft.abc.acs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pt.tecnico.ulisboa.hbbft.IProtocol;
 import pt.tecnico.ulisboa.hbbft.NetworkInfo;
 import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
 import pt.tecnico.ulisboa.hbbft.Step;
 import pt.tecnico.ulisboa.hbbft.abc.acs.messages.DecryptionMessage;
+import pt.tecnico.ulisboa.hbbft.abc.alea.Alea;
 import pt.tecnico.ulisboa.hbbft.subset.IAsynchronousCommonSubset;
 import pt.tecnico.ulisboa.hbbft.subset.Subset;
 import pt.tecnico.ulisboa.hbbft.subset.SubsetMessage;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 
 // The sub-protocols and their intermediate results for a single epoch.
 public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
+
+    private final static Logger logger = LoggerFactory.getLogger(Epoch.class);
 
     // Our epoch number.
     private final Long epochId;
@@ -56,7 +61,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
 
     @Override
     public Step<Batch> handleInput(byte[] input) {
-        System.out.println("at epoch.handleInput");
+        //logger.info("at epoch.handleInput");
         if (this.requireEncryption) {
             // TODO encrypt proposal
         }
@@ -66,6 +71,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
 
     @Override
     public Step<Batch> handleMessage(ProtocolMessage message) {
+        // logger.info("handleMessage");
         if (message instanceof SubsetMessage) {
             Step<Subset> acsStep = this.acs.handleMessage((SubsetMessage) message);
             return this.handleAcsStep(acsStep);
@@ -89,6 +95,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
     }
 
     private Step<Batch> handleDecryptionMessage(DecryptionMessage message) {
+        // logger.info("handleDecryptionMessage");
         // save sender decryption share
         this.decryptionShares.putIfAbsent(message.getSender(), message.getShare());
 
@@ -97,6 +104,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
     }
 
     private Step<Batch> handleAcsStep(Step<Subset> acsStep) {
+        // logger.info("handleAcsStep");
         Step<Batch> step = new Step<>(acsStep.getMessages());
         if (acsStep.getOutput().isEmpty()) return step;
 
@@ -122,6 +130,8 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
     }
 
     private Step<Batch> tryOutput() {
+        // logger.info("tryOutput");
+
         Step<Batch> step = new Step<>();
 
         // ignore if ACS hasn't terminated

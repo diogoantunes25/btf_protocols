@@ -37,6 +37,7 @@ public class HasValueState<T> extends ProposalState {
 
     @Override
     public Step<byte[]> vote(boolean value) {
+        // logger.info("Proposal {} - voting {}", this.proposal.getInstance(), value);
         Step<Boolean> baStep = ba.handleInput(value);
         if (ba.hasTerminated()) {
             proposal.setState(new CompleteState<>(proposal, bc, ba));
@@ -46,6 +47,7 @@ public class HasValueState<T> extends ProposalState {
 
     @Override
     protected Step<byte[]> handleBroadcastMessage(BroadcastMessage broadcastMessage) {
+        // logger.info("Proposal {} - handleBroadcastMessage", this.proposal.getInstance());
         return bc.handleMessage(broadcastMessage);
     }
 

@@ -1,12 +1,17 @@
 package pt.tecnico.ulisboa.hbbft.subset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
 import pt.tecnico.ulisboa.hbbft.Step;
 import pt.tecnico.ulisboa.hbbft.binaryagreement.IBinaryAgreement;
 import pt.tecnico.ulisboa.hbbft.broadcast.IBroadcast;
+import pt.tecnico.ulisboa.hbbft.subset.hbbft.HoneyBadgerSubset;
 import pt.tecnico.ulisboa.hbbft.subset.state.OngoingState;
 
 public class Proposal {
+
+    private final static Logger logger = LoggerFactory.getLogger(Proposal.class);
 
     private final Integer instance;
     private ProposalState state;
@@ -16,6 +21,7 @@ public class Proposal {
     public Proposal(Integer instance, IBroadcast bc, IBinaryAgreement ba) {
         this.instance = instance;
         this.state = new OngoingState(this, bc, ba);
+        // logger.info("Proposal {} created. OnGoingState is the state", this.instance);
     }
 
     public Integer getInstance() {

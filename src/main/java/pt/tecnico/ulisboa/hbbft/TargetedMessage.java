@@ -28,4 +28,9 @@ public class TargetedMessage {
     public List<Integer> getTargets() {
         return targets;
     }
+
+    public String toString() {
+        return "TargetedMessage(" + content + ", to: " + targets +")";
+    }
+
 }

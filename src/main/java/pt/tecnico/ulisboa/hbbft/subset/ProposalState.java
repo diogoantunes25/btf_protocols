@@ -1,13 +1,18 @@
 package pt.tecnico.ulisboa.hbbft.subset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
 import pt.tecnico.ulisboa.hbbft.Step;
 import pt.tecnico.ulisboa.hbbft.binaryagreement.BinaryAgreementMessage;
 import pt.tecnico.ulisboa.hbbft.binaryagreement.IBinaryAgreement;
 import pt.tecnico.ulisboa.hbbft.broadcast.BroadcastMessage;
 import pt.tecnico.ulisboa.hbbft.broadcast.IBroadcast;
+import pt.tecnico.ulisboa.hbbft.subset.hbbft.HoneyBadgerSubset;
 
 public abstract class ProposalState {
+
+    protected final static Logger logger = LoggerFactory.getLogger(ProposalState.class);
 
     protected Proposal proposal;
 

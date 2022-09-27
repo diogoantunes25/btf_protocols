@@ -54,7 +54,10 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
         this.acsFactory = acsFactory;
 
         final int bSize = params.getBatchSize();
-        final int pSize = bSize/networkInfo.getN();
+        // TODO: Check if this slight change is ok
+        // final int pSize = bSize/networkInfo.getN();
+        final int pSize = bSize/networkInfo.getN() + 1;
+        // logger.info("psize set to {}", pSize);
         this.queue = new TransactionQueue(bSize, pSize);
     }
 
@@ -72,10 +75,12 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
     @Override
     public Step<Block> handleInput(byte[] input) {
+        // logger.info("handleInput - {}", input);
         if (params.getFault(replicaId) == Params.Fault.CRASH) return new Step<>();
 
         // add input to the queue of pending transactions
         this.queue.add(input);
+        // logger.info("added to queue. queue state - {}", this.queue);
 
         // try propose into a new epoch
         return this.tryPropose();
@@ -95,7 +100,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
         } else if (epochId > this.epoch + this.params.getMaxFutureEpochs()) {
             // ignore out of range message
-            System.out.println("MESSAGE OUT OF EPOCH RANGE");
+            logger.info("MESSAGE OUT OF EPOCH RANGE");
 
         } else {
             // route the message to the corresponding epoch
@@ -120,24 +125,29 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
     }
 
     private Step<Block> tryPropose() {
-        System.out.println("at tryPropose");
+        // logger.info("at tryPropose. queue state: {}", this.queue);
+
         // can only propose once per epoch
         if (this.hasInput) return new Step<>();
 
         // select and encode proposal
         Collection<byte[]> proposal;
-        if (this.params.isBenchmark()) {
-            proposal = new ArrayList<>();
-            Random rng = new Random();
-            for (int i=0; i<this.queue.getProposalSize(); i++) {
-                byte[] entry = new byte[this.params.getMaxPayloadSize()];
-                rng.nextBytes(entry);
-                proposal.add(entry);
-            }
-        } else {
-            proposal = this.queue.get();
-        }
+//        if (this.params.isBenchmark()) {
+//            proposal = new ArrayList<>();
+//            Random rng = new Random();
+//            for (int i=0; i<this.queue.getProposalSize(); i++) {
+//                byte[] entry = new byte[this.params.getMaxPayloadSize()];
+//                rng.nextBytes(entry);
+//                proposal.add(entry);
+//            }
+//        } else {
+//            proposal = this.queue.get();
+//        }
+
+        proposal = this.queue.get();
+        logger.info("trying to propose {}", proposal);
         byte[] encoded = this.encodeBatchEntries(proposal);
+        logger.info("proposal encoded to {}", encoded);
 
         // TODO propose empty batches?
         // if (proposal.isEmpty()) return new Step<>();
@@ -151,11 +161,13 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
     }
 
     public Step<Block> handleEpochStep(Step<Batch> epochStep) {
+        // logger.info("handling epoch step");
         Step<Block> step = new Step<>(epochStep.getMessages());
 
         // check is the current epoch has terminated
         Epoch epoch = this.getEpoch(this.epoch);
         if (!epoch.hasTerminated()) {
+            // logger.info("epoch did not terminate yet");
             return step;
         }
 
@@ -174,10 +186,13 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
             // remove the block contents form the pending queue
             this.queue.removeAll(blockContents);
         }
+
+
         Block block = new Block(batch.getEpochId(), blockContents);
         block.setProposers(batch.getContributions().keySet());
         step.add(block);
 
+        // logger.info("new block - {}", block);
 
         this.updateEpoch();
         step.add(this.tryPropose());

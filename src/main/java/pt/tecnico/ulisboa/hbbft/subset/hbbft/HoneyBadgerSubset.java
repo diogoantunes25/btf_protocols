@@ -1,6 +1,9 @@
 package pt.tecnico.ulisboa.hbbft.subset.hbbft;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pt.tecnico.ulisboa.hbbft.*;
+import pt.tecnico.ulisboa.hbbft.abc.acs.Epoch;
 import pt.tecnico.ulisboa.hbbft.binaryagreement.BinaryAgreementFactory;
 import pt.tecnico.ulisboa.hbbft.broadcast.BroadcastFactory;
 import pt.tecnico.ulisboa.hbbft.broadcast.BroadcastMessage;
@@ -13,6 +16,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class HoneyBadgerSubset implements IAsynchronousCommonSubset {
+
+    private final static Logger logger = LoggerFactory.getLogger(HoneyBadgerSubset.class);
 
     // The ACS instance identifier
     private final String pid;
@@ -61,9 +66,14 @@ public class HoneyBadgerSubset implements IAsynchronousCommonSubset {
 
     @Override
     public Step<Subset> handleInput(byte[] input) {
+        // logger.info("handleInput - {}", input);
+
         Proposal proposal = proposals.get(replicaId);
+
         Step<Subset> step = this.convertStep(replicaId, proposal.propose(input));
+
         step.add(this.tryOutput());
+
         return step;
     }
 
@@ -91,23 +101,39 @@ public class HoneyBadgerSubset implements IAsynchronousCommonSubset {
     // Checks the voting and termination conditions: If enough proposals have been accepted, votes
     // "no" for the remaining ones. If all proposals have been decided, outputs `Done`.
     private Step<Subset> tryOutput() {
+        // logger.info("tryOutput");
         Step<Subset> step = new Step<>();
+
         if (this.hasTerminated() || this.countAccepted() < networkInfo.getNumCorrect()) {
+            if (this.hasTerminated()) {
+                // logger.info("tryoutput returned because terminated");
+            }
+
+            if (this.countAccepted() < networkInfo.getNumCorrect()) {
+                // logger.info("tryoutput returned because countAccepeted it less than NumCorrect ({}, {})", this.countAccepted(), networkInfo.getNumCorrect());
+            }
+
             return step;
         }
+
         // Vote false for all remaining binary agreement instances
         if (this.countAccepted() == networkInfo.getNumCorrect()) {
             for (Map.Entry<Integer, Proposal> entry : proposals.entrySet()) {
                 step.add(this.convertStep(entry.getKey(), entry.getValue().vote(false)));
             }
         }
+
         if (proposals.values().stream().allMatch(Proposal::complete)) {
+            // logger.info("all proposals completed");
             Subset output = new Subset();
             for (Proposal proposal : proposals.values().stream().filter(Proposal::accepted).collect(Collectors.toList()))
                 output.addEntry(proposal.getInstance(), proposal.getResult());
             step.add(output);
             this.output = output;
+        } else {
+            // logger.info("not all proposals are completed");
         }
+
         return step;
     }
 
@@ -122,6 +148,7 @@ public class HoneyBadgerSubset implements IAsynchronousCommonSubset {
     }
 
     private Step<Subset> convertStep(Integer instance, Step<?> step) {
+
         // Convert broadcast/binary agreement messages into subset messages
         Vector<TargetedMessage> messages = new Vector<>();
         for (TargetedMessage tm : step.getMessages()) {

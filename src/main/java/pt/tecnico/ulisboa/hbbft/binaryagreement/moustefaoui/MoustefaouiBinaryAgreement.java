@@ -111,6 +111,7 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
             step.addFault(pid, "CANNOT PROPOSE");
             return step;
         }
+
         // Set the initial estimated value to the input value.
         this.estimate = input;
 
@@ -119,6 +120,7 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
             BValMessage bValMessage = messageFactory.createBValMessage(input);
             step.add(this.sendBValMessage(bValMessage));
         }
+
         return step;
     }
 
