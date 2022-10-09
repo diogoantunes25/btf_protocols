@@ -11,7 +11,7 @@ import pt.tecnico.ulisboa.hbbft.binaryagreement.IBinaryAgreement;
 
 public abstract class AgreementState {
 
-    protected Logger logger = LoggerFactory.getLogger(Alea.class);
+    protected Logger logger = LoggerFactory.getLogger(AgreementState.class);
 
     protected Alea alea;
     protected Long epoch;

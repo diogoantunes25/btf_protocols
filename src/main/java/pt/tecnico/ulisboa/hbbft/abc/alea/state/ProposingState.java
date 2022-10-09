@@ -1,5 +1,7 @@
 package pt.tecnico.ulisboa.hbbft.abc.alea.state;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pt.tecnico.ulisboa.hbbft.Step;
 import pt.tecnico.ulisboa.hbbft.abc.Block;
 import pt.tecnico.ulisboa.hbbft.abc.alea.Alea;
@@ -14,11 +16,11 @@ public class ProposingState extends AgreementState {
 
     public ProposingState(Alea alea, Long epoch) {
         super(alea, epoch);
-        // logger.info("[EPOCH - {}] - Entered Proposing State.", epoch);
     }
 
     @Override
     public Step<Block> tryProgress() {
+        logger.info("tryPropose on ProposingState");
         Step<Block> step = new Step<>();
 
         if (this.canProgress()) {
@@ -26,7 +28,6 @@ public class ProposingState extends AgreementState {
             Optional<Slot> slot = queue.peek();
 
             IBinaryAgreement instance = this.getBaInstance();
-            final boolean proposal = slot.isPresent();
             Step<Boolean> baStep = instance.handleInput(slot.isPresent());
             step.add(baStep.getMessages());
 
@@ -34,12 +35,21 @@ public class ProposingState extends AgreementState {
 
             AgreementState nextState = new OngoingState(alea, epoch);
             step.add(this.alea.setAgreementState(nextState));
+        } else {
+            logger.info("tryPropose on ProposingState aborted - there's nothing to decide on");
         }
         return step;
     }
 
+    /**
+     * Check if any queue is non-empty
+     */
     private boolean canProgress() {
         return this.alea.getQueues().values().stream()
                 .anyMatch(queue -> queue.peek().isPresent());
+    }
+
+    public String toString() {
+        return "ProposingState";
     }
 }

@@ -84,6 +84,8 @@ public class EchoVBroadcast2 implements IEchoVBroadcast {
             return step;
         }
 
+        logger.info("handleInput called");
+
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashedInput = digest.digest(input);

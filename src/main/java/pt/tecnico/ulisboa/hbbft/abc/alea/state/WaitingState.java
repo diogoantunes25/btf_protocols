@@ -20,14 +20,18 @@ public class WaitingState extends AgreementState {
 
     @Override
     public Step<Block> tryProgress() {
+        logger.info("tryPropose on WaitingState");
         Step<Block> step = new Step<>();
 
         synchronized (this.getQueue()) {
+            // Wait until I know of the value that was agreed upon
             if (this.canProgress()) {
+                // Deliver
                 Slot slot = this.getQueue().peek().orElseThrow();
 
                 Collection<byte[]> blockContents;
                 if (this.alea.getParams().getFault(this.getQueue().getId()) == Alea.Params.Fault.BYZANTINE) {
+                    // TODO: (dsa) check if this makes sense
                     blockContents = new ArrayList<>();
                 } else {
                     blockContents = Alea.decodeBatchEntries(slot.getValue());
@@ -52,6 +56,8 @@ public class WaitingState extends AgreementState {
                 // Progress to next state
                 AgreementState nextState = new ProposingState(alea, epoch+1);
                 step.add(this.alea.setAgreementState(nextState));
+            } else {
+                logger.info("tryPropose on WaitingState aborted - nothing to decide on this round");
             }
         }
         return step;
@@ -60,4 +66,9 @@ public class WaitingState extends AgreementState {
     private boolean canProgress() {
         return this.getQueue().peek().isPresent();
     }
+
+    public String toString() {
+        return "WaitingState";
+    }
+
 }

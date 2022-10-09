@@ -32,7 +32,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
     private Boolean hasInput = false;
 
     // The sub-protocols for ongoing epochs.
-    private final Map<Long, Epoch> epochs = new ConcurrentSkipListMap<>();
+    private Map<Long, Epoch> epochs = new ConcurrentSkipListMap<>();
 
     // Parameters controlling the ABC behavior and performance.
     private final Params params;
@@ -40,7 +40,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
     private final SubsetFactory acsFactory;
 
     // Queue of pending transactions
-    private final TransactionQueue queue;
+    private TransactionQueue queue;
 
     public AcsAtomicBroadcast(
             Integer replicaId,
@@ -100,7 +100,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
         } else if (epochId > this.epoch + this.params.getMaxFutureEpochs()) {
             // ignore out of range message
-            logger.info("MESSAGE OUT OF EPOCH RANGE");
+            // logger.info("MESSAGE OUT OF EPOCH RANGE");
 
         } else {
             // route the message to the corresponding epoch
@@ -145,9 +145,9 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 //        }
 
         proposal = this.queue.get();
-        logger.info("trying to propose {}", proposal);
+        // logger.info("trying to propose {}", proposal);
         byte[] encoded = this.encodeBatchEntries(proposal);
-        logger.info("proposal encoded to {}", encoded);
+        // logger.info("proposal encoded to {}", encoded);
 
         // TODO propose empty batches?
         // if (proposal.isEmpty()) return new Step<>();
@@ -244,6 +244,13 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
         }
 
         return entries;
+    }
+
+    public void reset() {
+        int bSize = params.getBatchSize();
+        int pSize = bSize/networkInfo.getN() + 1;
+        epochs = new ConcurrentSkipListMap<>();
+        this.queue = new TransactionQueue(bSize, pSize);
     }
 
     // Parameters controlling the protocol's behavior and performance.
@@ -362,5 +369,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
         public Integer getMaxPayloadSize() {
             return maxPayloadSize;
         }
+
+
     }
 }

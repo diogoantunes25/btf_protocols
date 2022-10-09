@@ -29,14 +29,14 @@ public class HoneyBadger implements IHoneyBadger {
     private Boolean hasInput = false;
 
     // The sub-algorithms for ongoing epochs.
-    private final Map<Long, Epoch> epochs = new TreeMap<>();
+    private Map<Long, Epoch> epochs = new TreeMap<>();
 
     // Parameters controlling HoneyBadger's behavior and performance.
     private final Params params;
 
     private final HoneyBadgerSubsetFactory acsFactory;
 
-    private final TransactionQueue queue;
+    private TransactionQueue queue;
 
     public HoneyBadger(
             Integer replicaId,
@@ -218,5 +218,12 @@ public class HoneyBadger implements IHoneyBadger {
         }
 
         return entries;
+    }
+
+    public void reset() {
+        epochs = new TreeMap<>();
+        int bSize = params.getBatchSize();
+        int pSize = bSize/networkInfo.getN();
+        this.queue = new TransactionQueue(bSize, pSize);
     }
 }

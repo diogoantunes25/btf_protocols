@@ -50,19 +50,19 @@ public class Alea implements IAlea {
     private final ThreshsigUtil threshsigUtil;
 
     // The local priority value
-    private final AtomicLong priority = new AtomicLong();
+    private AtomicLong priority = new AtomicLong();
 
     // Queue of pending requests (ignored when batching is inactive)
-    private final Queue<byte[]> pendingQueue = new ConcurrentLinkedQueue<>();
+    private Queue<byte[]> pendingQueue = new ConcurrentLinkedQueue<>();
 
     // The priority queues (one per replica)
-    private final Map<Integer, PriorityQueue> queues = new ConcurrentHashMap<>();
+    private Map<Integer, PriorityQueue> queues = new ConcurrentHashMap<>();
 
     // A map of validated consistent broadcast instances by pid
-    private final Map<BcPid, IVBroadcast> bcInstances = new ConcurrentHashMap<>();
+    private Map<BcPid, IVBroadcast> bcInstances = new ConcurrentHashMap<>();
 
     // A map of binary agreement instances by pid
-    private final Map<BaPid, IBinaryAgreement> baInstances = new ConcurrentHashMap<>();
+    private Map<BaPid, IBinaryAgreement> baInstances = new ConcurrentHashMap<>();
 
     // The current number of active broadcast instances
     private AtomicInteger broadcastState;
@@ -71,17 +71,17 @@ public class Alea implements IAlea {
     private AgreementState agreementState;
 
     // The set of executed commands
-    private final Set<byte[]> executed = new HashSet<>();
+    private Set<byte[]> executed = new HashSet<>();
 
     private final Lock broadcastComponentLock = new ReentrantLock();
     private final Lock agreementComponentLock = new ReentrantLock();
-    private final ExecutionLog<Block> executionLog = new ExecutionLog<>("ALEA");
+    private ExecutionLog<Block> executionLog = new ExecutionLog<>("ALEA");
 
     // Map from broadcast instances id to execution logs
     // An execution log for a broadcast instance
-    private final Map<BcPid, ExecutionLog<byte[]>> bcLog = new ConcurrentHashMap<>();
+    private Map<BcPid, ExecutionLog<byte[]>> bcLog = new ConcurrentHashMap<>();
     // Map from binary agreement ids to execution logs
-    private final Map<BaPid, ExecutionLog<Boolean>> baLog = new ConcurrentHashMap<>();
+    private Map<BaPid, ExecutionLog<Boolean>> baLog = new ConcurrentHashMap<>();
 
     public Alea(Integer replicaId, NetworkInfo networkInfo, Params params) {
         this.replicaId = replicaId;
@@ -169,7 +169,7 @@ public class Alea implements IAlea {
 
     @Override
     public Step<Block> handleInput(byte[] input) {
-        // logger.info("handleInput called - input:{}", input);
+        logger.info("Alea received input");
 
         Step<Block> step = new Step<>();
         if (params.getFault(replicaId) == Params.Fault.CRASH) return step;
@@ -317,31 +317,28 @@ public class Alea implements IAlea {
 
     @Override
     public Step<Block> handleVBroadcastStep(Step<VOutput> bcStep, BcPid bcPid) {
+
         Step<Block> step = new Step<>(bcStep.getMessages());
-        if (bcStep.getOutput().isEmpty()) return step;
+        // If broadcast produced no output, then don't move on
+        if (bcStep.getOutput().isEmpty()) {
+            return step;
+        }
 
         // set finish time for duration benchmark
+        // TODO: (dsa) don't know what this is for
         this.bcLog.get(bcPid).setResult(null);
 
         // logger.info("Delivered proposal from replica-{} for slot-{}", bcPid.getQueueId(), bcPid.getSlotId());
 
         // add pre-ordered request to the corresponding priority queue
-        // FIXME: (dsa) when in benchmark mode, adding empty arrays to slots
+        logger.info("New command from VCBC -> enqueuing (queue from replica: {}, priority: {})", bcPid.getQueueId(), bcPid.getSlotId());
         PriorityQueue queue = queues.get(bcPid.getQueueId());
         VOutput output = bcStep.getOutput().firstElement();
         queue.enqueue(bcPid.getSlotId(), output.getValue(), output.getSignature());
-        if (this.executed.contains(output.getValue()))
+        if (this.executed.contains(output.getValue())) {
+            logger.info("Command had already been executed -> dequeuing");
             queue.dequeue(bcPid.getSlotId());
-
-//        if (!this.params.isBenchmark()) {
-//            VOutput output = bcStep.getOutput().firstElement();
-//            queue.enqueue(bcPid.getSlotId(), output.getValue(), output.getSignature());
-//            if (this.executed.contains(output.getValue()))
-//                queue.dequeue(bcPid.getSlotId());
-//        } else {
-//            queue.enqueue(bcPid.getSlotId(), new byte[0], bcStep.getOutput().firstElement().getSignature());
-//        }
-
+        }
 
         // remove VCBC instance
         this.bcInstances.remove(bcPid);
@@ -353,6 +350,7 @@ public class Alea implements IAlea {
                 step.add(this.tryPropose());
         }
 
+        // Move to ABA
         step.add(this.tryProgress());
 
         return step;
@@ -372,53 +370,52 @@ public class Alea implements IAlea {
         return step;
     }
 
+    /**
+     * Try to propose a value to be included in PriorityQueues
+     * @return
+     */
     private synchronized Step<Block> tryPropose() {
         // do not propose if there is nothing to propose
-        // if (!this.params.isBenchmark() && this.pendingQueue.isEmpty()) return new Step<>();
-        if (this.pendingQueue.isEmpty()) return new Step<>();
+        if (this.pendingQueue.isEmpty()) {
+            return new Step<>();
+        }
 
         // do not propose if the number of concurrent VCBC instances exceeds the maximum value in params
-        if (this.broadcastState.get() >= this.params.getMaxConcurrentBroadcasts()) return new Step<>();
+        if (this.broadcastState.get() >= this.params.getMaxConcurrentBroadcasts()) {
+            logger.info("broadcast maximum reached");
+            return new Step<>();
+        }
 
         // do not propose if the pipeline offset exceed the maximum value in the params
         final long pipelineOffset = this.priority.get() - this.getQueues().get(replicaId).getHead();
-        if (pipelineOffset >= params.getMaxPipelineOffset()) return new Step<>();
+        if (pipelineOffset >= params.getMaxPipelineOffset()) {
+            logger.info("pipeline offset exceed");
+            return new Step<>();
+        }
 
         // group pending entries into a byte encoded batch
-        // FIXME: (dsa) why different behaviour during benchmark?
         List<byte[]> entries = new ArrayList<>();
 
+        logger.info("tryPropose started");
         // select entries from pending queue
         synchronized (this.pendingQueue) {
-            if (this.pendingQueue.size() < params.getBatchSize()) return new Step<>();
-            // logger.info("collecting entries. pending queue - {}", this.pendingQueue);
+            if (this.pendingQueue.size() < params.getBatchSize()) {
+                logger.info("batch is not big enough");
+                return new Step<>();
+            }
             for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
                 entries.add(this.pendingQueue.poll());
             }
         }
-        if (entries.isEmpty()) return new Step<>();
-        // logger.info("collected batch - {}", entries);
+
+        if (entries.isEmpty()) {
+            logger.info("tryPropose aborted - not enough pending requests to form a batch");
+            return new Step<>();
+        }
+
         byte[] batch = encodeBatchEntries(entries);
 
-//        if (this.params.isBenchmark()) {
-//            // randomly generate batch entries
-//            Random rd = new Random();
-//            for (int i=0; i<params.getBatchSize(); i++) {
-//                byte[] entry = new byte[params.getMaxPayloadSize()];
-//                rd.nextBytes(entry);
-//                entries.add(entry);
-//            }
-//        } else {
-//            // select entries from pending queue
-//            synchronized (this.pendingQueue) {
-//                if (this.pendingQueue.size() < params.getBatchSize()) return new Step<>();
-//                for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
-//                    entries.add(this.pendingQueue.poll());
-//                }
-//            }
-//        }
-
-        // start new VCBC instances with the encoded batch as input
+        // input batch to VCBC
         BcPid bcPid = new BcPid("VCBC", replicaId, priority.getAndIncrement());
         IVBroadcast instance = this.getVBroadcastInstance(bcPid);
         Step<VOutput> bcStep = instance.handleInput(batch);
@@ -426,14 +423,15 @@ public class Alea implements IAlea {
         // increment the concurrent VCBC instances counter
         broadcastState.incrementAndGet();
 
-        // handle VCBC and return a protocol step
         return this.handleVBroadcastStep(bcStep, bcPid);
     }
 
     private Step<Block> tryProgress() {
+        logger.info("tryProgress called");
         Step<Block> step = this.agreementState.tryProgress();
+
         if (!step.getOutput().isEmpty()) {
-            // logger.info("there's something to output - {}", step.getOutput());
+            logger.info("tryProgress was successful - there's something to output");
             for (Block block: step.getOutput()) {
                 executed.add(block.getContent());
             }
@@ -619,5 +617,22 @@ public class Alea implements IAlea {
         sb.append("   *\n\n");
 
         return sb.toString();
+    }
+
+    public void reset() {
+        broadcastState = new AtomicInteger(0);
+        agreementState = new ProposingState(this, 0L);
+        priority = new AtomicLong();
+        pendingQueue = new ConcurrentLinkedQueue<>();
+        bcInstances = new ConcurrentHashMap<>();
+        baInstances = new ConcurrentHashMap<>();
+        executed = new HashSet<>();
+        executionLog = new ExecutionLog<>("ALEA");
+        bcLog = new ConcurrentHashMap<>();
+        baLog = new ConcurrentHashMap<>();
+
+        for (int id=0; id<networkInfo.getN(); id++) {
+            this.queues.put(id, new PriorityQueue(id));
+        }
     }
 }

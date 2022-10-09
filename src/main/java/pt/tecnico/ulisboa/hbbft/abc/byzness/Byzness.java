@@ -42,13 +42,13 @@ public class Byzness implements IByzness {
     private final AtomicLong priority = new AtomicLong();
 
     // The priority queues (one per replica)
-    private final Map<Integer, PriorityQueue> queues = new TreeMap<>();
+    private Map<Integer, PriorityQueue> queues = new TreeMap<>();
 
     // A map of validated consistent broadcast instances by pid
-    private final Map<BcPid, IVBroadcast> bcInstances = new HashMap<>();
+    private Map<BcPid, IVBroadcast> bcInstances = new HashMap<>();
 
     // A map of binary agreement instances by pid
-    private final Map<BaPid, IBinaryAgreement> baInstances = new HashMap<>();
+    private Map<BaPid, IBinaryAgreement> baInstances = new HashMap<>();
 
     // The current agreement state
     private AgreementState agreementState;
@@ -287,5 +287,16 @@ public class Byzness implements IByzness {
         for (Block block: step.getOutput())
             executed.add(block.getContent());
         return step;
+    }
+
+    public void reset() {
+        this.agreementState = new ProposingState(this, 0L);
+        queues = new TreeMap<>();
+        bcInstances = new HashMap<>();
+        baInstances = new HashMap<>();
+        executed = new HashSet<>();
+
+        for (int id=0; id<networkInfo.getN(); id++)
+            this.queues.put(id, new PriorityQueue(id));
     }
 }

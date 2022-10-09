@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.628" tests="10" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.657" tests="10" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -7,13 +7,12 @@
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://java.oracle.com/"/>
-    <property name="user.country.format" value="PT"/>
     <property name="os.name" value="Linux"/>
     <property name="java.vm.specification.version" value="17"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-oracle/lib"/>
-    <property name="sun.java.command" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter4476152449464463732.jar /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire 2022-09-26T18-13-59_357-jvmRun1 surefire5493522146436242241tmp surefire_03195637354382563314tmp"/>
+    <property name="sun.java.command" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter5938412902494203769.jar /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire 2022-10-09T11-46-08_455-jvmRun1 surefire7447305580135231571tmp surefire_016282820310528556322tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/test-classes:/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/classes:/home/diogo/.m2/repository/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar:/home/diogo/.m2/repository/org/slf4j/slf4j-simple/1.7.30/slf4j-simple-1.7.30.jar:/home/diogo/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.7.0/junit-jupiter-engine-5.7.0.jar:/home/diogo/.m2/repository/org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar:/home/diogo/.m2/repository/org/junit/platform/junit-platform-engine/1.7.0/junit-platform-engine-1.7.0.jar:/home/diogo/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/diogo/.m2/repository/org/junit/platform/junit-platform-commons/1.7.0/junit-platform-commons-1.7.0.jar:/home/diogo/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.7.0/junit-jupiter-api-5.7.0.jar:/home/diogo/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.7.0/junit-jupiter-params-5.7.0.jar:/home/diogo/.m2/repository/org/mockito/mockito-core/2.23.0/mockito-core-2.23.0.jar:/home/diogo/.m2/repository/net/bytebuddy/byte-buddy/1.9.0/byte-buddy-1.9.0.jar:/home/diogo/.m2/repository/net/bytebuddy/byte-buddy-agent/1.9.0/byte-buddy-agent-1.9.0.jar:/home/diogo/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/home/diogo/.m2/repository/org/mockito/mockito-junit-jupiter/2.23.0/mockito-junit-jupiter-2.23.0.jar:/home/diogo/.m2/repository/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar:/home/diogo/.m2/repository/redis/clients/jedis/3.5.1/jedis-3.5.1.jar:/home/diogo/.m2/repository/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -26,9 +25,9 @@
     <property name="basedir" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="line.separator" value="&#10;"/>
-    <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
-    <property name="surefire.real.class.path" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter4476152449464463732.jar"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="surefire.real.class.path" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter5938412902494203769.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.1+12-LTS-39"/>
     <property name="user.name" value="diogo"/>
@@ -44,7 +43,6 @@
     <property name="user.dir" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="user.language.format" value="pt"/>
     <property name="native.encoding" value="UTF-8"/>
     <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib"/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
@@ -53,14 +51,14 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="handleMessage_givenVBroadcastMessage_thenRouteToHandler{VBroadcastMessage}[1]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.431"/>
-  <testcase name="handleMessage_givenVBroadcastMessage_thenRouteToHandler{VBroadcastMessage}[2]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.017"/>
-  <testcase name="handleMessage_givenVBroadcastMessage_thenRouteToHandler{VBroadcastMessage}[3]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.016"/>
-  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[1]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.019"/>
-  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[2]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.014"/>
-  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[3]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.013"/>
-  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[4]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.017"/>
-  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[5]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.018"/>
-  <testcase name="handleMessage_givenProtocolMessage_thenRouteToHandler{ProtocolMessage}[1]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.01"/>
+  <testcase name="handleMessage_givenVBroadcastMessage_thenRouteToHandler{VBroadcastMessage}[1]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.422"/>
+  <testcase name="handleMessage_givenVBroadcastMessage_thenRouteToHandler{VBroadcastMessage}[2]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.027"/>
+  <testcase name="handleMessage_givenVBroadcastMessage_thenRouteToHandler{VBroadcastMessage}[3]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.033"/>
+  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[1]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.023"/>
+  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[2]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.022"/>
+  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[3]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.022"/>
+  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[4]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.02"/>
+  <testcase name="handleMessage_givenBinaryAgreementMessage_thenRouteToHandler{BinaryAgreementMessage}[5]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.01"/>
+  <testcase name="handleMessage_givenProtocolMessage_thenRouteToHandler{ProtocolMessage}[1]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.013"/>
   <testcase name="handleMessage_givenProtocolMessage_thenRouteToHandler{ProtocolMessage}[2]" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.HandleMessageTest" time="0.011"/>
 </testsuite>

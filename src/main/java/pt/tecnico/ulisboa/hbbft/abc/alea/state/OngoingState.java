@@ -9,29 +9,42 @@ public class OngoingState extends AgreementState {
 
     public OngoingState(Alea alea, Long epoch) {
         super(alea, epoch);
-        // logger.info("[EPOCH - {}] - Entered Ongoing State.", epoch);
     }
 
     @Override
     public Step<Block> tryProgress() {
+        logger.info("tryPropose on Ongoingstate");
         Step<Block> step = new Step<>();;
 
         if (this.canProgress()) {
             IBinaryAgreement instance = this.getBaInstance();
             Boolean decision = instance.deliver().orElseThrow();
 
-            // logger.info("[EPOCH - {}] - Decided={}.", epoch, decision);
-
             AgreementState nextState;
-            if (decision) nextState = new WaitingState(alea, epoch);
-            else nextState = new ProposingState(alea, epoch + 1);
+
+            // Agreement succeeded
+            if (decision) {
+                nextState = new WaitingState(alea, epoch);
+                logger.info("moving to Waiting state");
+            }
+            // Not enough people had the slot so agreement failed
+            else {
+                nextState = new ProposingState(alea, epoch + 1);
+                logger.info("moving to Proposing state");
+            }
 
             step.add(this.alea.setAgreementState(nextState));
+        } else {
+            logger.info("tryPropose on OnGoingState aborted - ABA did not finish");
         }
         return step;
     }
 
     private boolean canProgress() {
         return this.getBaInstance().hasTerminated();
+    }
+
+    public String toString() {
+        return "OnGoingState";
     }
 }

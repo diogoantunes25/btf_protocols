@@ -10,4 +10,6 @@ import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
  * and the message is an abstract Protocol Message.
  */
 public interface IAtomicBroadcast extends IProtocol<byte[], Block, ProtocolMessage> {
+
+    public void reset();
 }

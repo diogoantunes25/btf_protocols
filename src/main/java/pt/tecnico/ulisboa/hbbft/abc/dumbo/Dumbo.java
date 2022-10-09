@@ -37,9 +37,9 @@ public class Dumbo implements IDumbo {
     // Whether we have already submitted a proposal for the current epoch.
     private Boolean hasInput = false;
 
-    private final Map<Long, Epoch> epochs = new TreeMap<>();
+    private Map<Long, Epoch> epochs = new TreeMap<>();
 
-    private final TransactionQueue txQueue;
+    private TransactionQueue txQueue;
 
     public Dumbo(
             Integer replicaId,
@@ -193,5 +193,12 @@ public class Dumbo implements IDumbo {
         }
 
         return entries;
+    }
+
+    public void reset() {
+        epochs = new TreeMap<>();
+        int bSize = params.getBatchSize();
+        int pSize = bSize/networkInfo.getN();
+        this.txQueue = new TransactionQueue(bSize, pSize);
     }
 }

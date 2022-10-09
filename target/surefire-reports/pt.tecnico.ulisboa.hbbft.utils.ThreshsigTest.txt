@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: pt.tecnico.ulisboa.hbbft.utils.ThreshsigTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.118 s - in pt.tecnico.ulisboa.hbbft.utils.ThreshsigTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.086 s - in pt.tecnico.ulisboa.hbbft.utils.ThreshsigTest

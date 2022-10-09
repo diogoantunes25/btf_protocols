@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class TransactionQueue {
@@ -13,7 +14,7 @@ public class TransactionQueue {
     private final Integer batchSize;
     private final Integer proposalSize;
 
-    private final Set<Transaction> elements = new HashSet<>();
+    private final Set<Transaction> elements = ConcurrentHashMap.newKeySet();
 
     public TransactionQueue(Integer batchSize, Integer proposalSize) {
         assert batchSize >= proposalSize;
@@ -45,7 +46,7 @@ public class TransactionQueue {
     }
 
     public String toString() {
-        return "TranscationQueue(" + elements + ")";
+        return "TransactionQueue(" + elements + ")";
     }
 
     private static class Transaction {
