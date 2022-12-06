@@ -109,11 +109,11 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
         Step<Boolean> step = new Step<>();
         if (!this.canPropose()) {
             step.addFault(pid, "CANNOT PROPOSE");
-            logger.info("handleInput aborted - cannot propose (either round > 0 or have already a proposal)");
+            // logger.info("handleInput aborted - cannot propose (either round > 0 or have already a proposal)");
             return step;
         }
 
-        logger.info("handleInput called with {}", input);
+        // logger.info("handleInput called with {}", input);
 
         // Set the initial estimated value to the input value.
         this.estimate = input;
@@ -212,11 +212,11 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
 
         // Upon receiving `2*f + 1` valid `BVAL`s for the same value
         int countBVal = this.receivedBVal.getIndex(value).size();
-        logger.info("(at round {}) BVal received - there are now {} bvals for value {}", this.getRound(), countBVal, value);
+        // logger.info("(at round {}) BVal received - there are now {} bvals for value {}", this.getRound(), countBVal, value);
         if (countBVal == (2*networkInfo.getF() + 1)) {
             // Add value to bin values set
             this.binValues.insert(value);
-            logger.info("inserted {} into bin_values", value);
+            // logger.info("inserted {} into bin_values", value);
 
             // If bin_values != {true,false} (it's the first time I added something to bin_values)
             if (!this.binValues.equals(BoolSet.BOTH())) {
@@ -232,9 +232,8 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
         }
 
         // Echo behaviour
-        // FIXME: (dsa) This is not working (somehow kills liveness)
         if (countBVal == this.networkInfo.getF() + 1 && this.sentBVal.insert(value)) {
-            logger.info("starting echo for value {}", value);
+            // logger.info("starting echo for value {}", value);
             BValMessage bValMessage = messageFactory.createBValMessage(value);
 
             boolean includeSelf = !this.receivedBVal.getIndex(value).contains(this.replicaId);
@@ -376,10 +375,10 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
         }
 
         if (aux_count < this.networkInfo.getNumCorrect()) {
-            logger.info("There are {} AUX messages - not sufficient ({} needed)", aux_count, this.networkInfo.getNumCorrect());
+            // logger.info("There are {} AUX messages - not sufficient ({} needed)", aux_count, this.networkInfo.getNumCorrect());
             return step;
         }
-        logger.info("There are {} AUX messages - moving to CONF part", aux_count);
+        // logger.info("There are {} AUX messages - moving to CONF part", aux_count);
         this.sbvTerminated = true;
 
         if (!this.confValues.equals(BoolSet.NONE())) {
@@ -394,7 +393,7 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
             step.add(this.tryUpdateRound());
         } else {
             // Start the `Conf` message round.
-            logger.info("starting CONF part");
+            // logger.info("starting CONF part");
             ConfMessage confMessage = messageFactory.createConfMessage(this.binValues);
             step.add(this.sendConfMessage(confMessage));
         }
@@ -451,16 +450,16 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
 
         Set<Boolean> defBinValues = confValues.getValues();
         Boolean coinValue = this.coin.getValue();
-        logger.info("moving to new round");
+        // logger.info("moving to new round");
         if (defBinValues.size() == 1) {
-            logger.info("|values| = 1");
+            // logger.info("|values| = 1");
             if (defBinValues.contains(coinValue)) {
                 step.add(this.decide(coinValue));
             } else {
                 step.add(this.updateRound(defBinValues.iterator().next()));
             }
         } else {
-            logger.info("|values| = 2");
+            // logger.info("|values| = 2");
             step.add(this.updateRound(coinValue));
         }
         return step;
@@ -509,7 +508,7 @@ public class MoustefaouiBinaryAgreement implements IMoustefaouiBinaryAgreement {
 
         TermMessage message = messageFactory.createTermMessage(value);
         step.add(this.sendTermMessage(message));
-        logger.info("ABA decided {}", value);
+        // logger.info("ABA decided {}", value);
         return step;
     }
 

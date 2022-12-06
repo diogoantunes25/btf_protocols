@@ -40,6 +40,7 @@
             <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
+
         <!-- Mockito -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -82,16 +83,57 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>3.5.1</version>
+			<scope>compile</scope>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.1</version>
+			</plugin>
+			<plugin>
+				<!-- Build an executable JAR -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>pt.tecnico.ulisboa.hbbft.example.binaryagreement.Main</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<!-- <plugin> -->
+			<!-- 	<artifactId>maven-assembly-plugin</artifactId> -->
+			<!-- 	<executions> -->
+			<!-- 		<execution> -->
+			<!-- 			<phase>package</phase> -->
+			<!-- 			<goals> -->
+			<!-- 				<goal>single</goal> -->
+			<!-- 			</goals> -->
+			<!-- 		</execution> -->
+			<!-- 	</executions> -->
+
+				<!-- Build jar with dependencies (for jedis to work) -->
+				<!-- <configuration> -->
+				<!-- 	<descriptorRefs> -->
+				<!-- 		<descriptorRef>jar-with-dependencies</descriptorRef> -->
+				<!-- 	</descriptorRefs> -->
+				<!-- 	<archive> -->
+				<!-- 		<manifest> -->
+				<!-- 			<mainClass>pt.tecnico.ulisboa.hbbft.example.binaryagreement.Main</mainClass> -->
+				<!-- 		</manifest> -->
+				<!-- 	</archive> -->
+
+				<!-- </configuration> -->
+				<!-- </configuration> -->
+			<!-- </plugin> -->
+		</plugins>
+	</build>
 </project>

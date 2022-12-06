@@ -111,6 +111,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
         // start decryption stage
         if (this.requireEncryption) {
             // generate simulated decryption share
+            // TODO: Generate proper share
             Random rd = new Random();
             byte[] decryptionShare = new byte[250];
             rd.nextBytes(decryptionShare);

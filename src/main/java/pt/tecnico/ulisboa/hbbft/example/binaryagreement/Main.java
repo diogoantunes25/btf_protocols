@@ -10,6 +10,7 @@ import pt.tecnico.ulisboa.hbbft.utils.ThreshsigUtils;
 import pt.tecnico.ulisboa.hbbft.utils.threshsig.Dealer;
 import pt.tecnico.ulisboa.hbbft.utils.threshsig.GroupKey;
 import pt.tecnico.ulisboa.hbbft.utils.threshsig.KeyShare;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -25,7 +26,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
-        try (JedisPool pool = new JedisPool("192.168.1.103")) {
+        try (JedisPool pool = new JedisPool("localhost")) {
             // Wait for PubSub listeners to setup
             Thread.sleep(1000);
 

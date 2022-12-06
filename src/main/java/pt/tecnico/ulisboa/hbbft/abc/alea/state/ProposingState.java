@@ -20,7 +20,7 @@ public class ProposingState extends AgreementState {
 
     @Override
     public Step<Block> tryProgress() {
-        logger.info("tryPropose on ProposingState");
+        // logger.info("tryPropose on ProposingState");
         Step<Block> step = new Step<>();
 
         if (this.canProgress()) {
@@ -36,7 +36,7 @@ public class ProposingState extends AgreementState {
             AgreementState nextState = new OngoingState(alea, epoch);
             step.add(this.alea.setAgreementState(nextState));
         } else {
-            logger.info("tryPropose on ProposingState aborted - there's nothing to decide on");
+            // logger.info("tryPropose on ProposingState aborted - there's nothing to decide on");
         }
         return step;
     }

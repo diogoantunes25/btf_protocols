@@ -20,7 +20,7 @@ public class WaitingState extends AgreementState {
 
     @Override
     public Step<Block> tryProgress() {
-        logger.info("tryPropose on WaitingState");
+        // logger.info("tryPropose on WaitingState");
         Step<Block> step = new Step<>();
 
         synchronized (this.getQueue()) {
@@ -57,7 +57,7 @@ public class WaitingState extends AgreementState {
                 AgreementState nextState = new ProposingState(alea, epoch+1);
                 step.add(this.alea.setAgreementState(nextState));
             } else {
-                logger.info("tryPropose on WaitingState aborted - nothing to decide on this round");
+                // logger.info("tryPropose on WaitingState aborted - nothing to decide on this round");
             }
         }
         return step;

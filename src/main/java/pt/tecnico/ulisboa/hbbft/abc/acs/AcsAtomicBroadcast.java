@@ -7,6 +7,7 @@ import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
 import pt.tecnico.ulisboa.hbbft.Step;
 import pt.tecnico.ulisboa.hbbft.abc.Block;
 import pt.tecnico.ulisboa.hbbft.abc.IAtomicBroadcast;
+import pt.tecnico.ulisboa.hbbft.abc.honeybadger.crypto.AlwaysEncrypt;
 import pt.tecnico.ulisboa.hbbft.abc.honeybadger.crypto.EncryptionSchedule;
 import pt.tecnico.ulisboa.hbbft.abc.honeybadger.crypto.NeverEncrypt;
 import pt.tecnico.ulisboa.hbbft.subset.SubsetFactory;
@@ -54,10 +55,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
         this.acsFactory = acsFactory;
 
         final int bSize = params.getBatchSize();
-        // TODO: Check if this slight change is ok
-        // final int pSize = bSize/networkInfo.getN();
         final int pSize = bSize/networkInfo.getN() + 1;
-        // logger.info("psize set to {}", pSize);
         this.queue = new TransactionQueue(bSize, pSize);
     }
 
@@ -132,17 +130,6 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
         // select and encode proposal
         Collection<byte[]> proposal;
-//        if (this.params.isBenchmark()) {
-//            proposal = new ArrayList<>();
-//            Random rng = new Random();
-//            for (int i=0; i<this.queue.getProposalSize(); i++) {
-//                byte[] entry = new byte[this.params.getMaxPayloadSize()];
-//                rng.nextBytes(entry);
-//                proposal.add(entry);
-//            }
-//        } else {
-//            proposal = this.queue.get();
-//        }
 
         proposal = this.queue.get();
         // logger.info("trying to propose {}", proposal);
@@ -282,7 +269,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
             private int batchSize = 8;
             private long maxFutureEpochs = 100L;
-            private EncryptionSchedule encryptionSchedule = new NeverEncrypt();
+            private EncryptionSchedule encryptionSchedule = new AlwaysEncrypt();
             private int committeeSize = 2;
             private Map<Integer, Fault> faults = new HashMap<>();
             private boolean benchmark = false;

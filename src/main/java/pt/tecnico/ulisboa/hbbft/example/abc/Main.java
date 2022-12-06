@@ -6,6 +6,7 @@ import pt.tecnico.ulisboa.hbbft.Transport;
 import pt.tecnico.ulisboa.hbbft.abc.IAtomicBroadcast;
 import pt.tecnico.ulisboa.hbbft.abc.acs.AcsAtomicBroadcast;
 import pt.tecnico.ulisboa.hbbft.abc.alea.Alea;
+import pt.tecnico.ulisboa.hbbft.abc.honeybadger.crypto.AlwaysEncrypt;
 import pt.tecnico.ulisboa.hbbft.abc.honeybadger.crypto.NeverEncrypt;
 import pt.tecnico.ulisboa.hbbft.binaryagreement.moustefaoui.MoustefaouiBinaryAgreementFactory;
 import pt.tecnico.ulisboa.hbbft.broadcast.bracha.BrachaBroadcastFactory;
@@ -146,7 +147,7 @@ public class Main {
 
                 AcsAtomicBroadcast.Params params = new AcsAtomicBroadcast.Params.Builder()
                         .batchSize(8)
-                        .encryptionSchedule(new NeverEncrypt())
+                        .encryptionSchedule(new AlwaysEncrypt())
                         .committeeSize(networkInfo.getF() + 1)
                         .maxFutureEpochs(100L)
                         .faults(Map.of(1, AcsAtomicBroadcast.Params.Fault.BYZANTINE))

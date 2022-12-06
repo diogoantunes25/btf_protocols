@@ -43,6 +43,7 @@
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/agreement/mvba/VcbcPid.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/broadcast/avid/crypto/reedsolomon/CodingLoop.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/abc/alea/BcPid.java
+/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/subset/dumbo/Dumbo2Subset.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/abc/alea/benchmark/ExecutionLog.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/abc/byzness/messages/FillerMessage.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/subset/state/AcceptedState.java
@@ -57,6 +58,7 @@
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/binaryagreement/moustefaoui/messages/CoinMessage.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/utils/TheshsigSchemeGenerator.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/example/abc/Main.java
+/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/subset/dumbo/Dumbo2SubsetFactory.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/example/broadcast/echo/EchoBroadcastMessageEncoder.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/agreement/vba/abba/messages/PreProcessMessage.java
 /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/src/main/java/pt/tecnico/ulisboa/hbbft/utils/threshsig/Verifier.java

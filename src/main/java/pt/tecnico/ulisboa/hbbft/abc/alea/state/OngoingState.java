@@ -13,7 +13,7 @@ public class OngoingState extends AgreementState {
 
     @Override
     public Step<Block> tryProgress() {
-        logger.info("tryPropose on Ongoingstate");
+        // logger.info("tryPropose on Ongoingstate");
         Step<Block> step = new Step<>();;
 
         if (this.canProgress()) {
@@ -25,17 +25,17 @@ public class OngoingState extends AgreementState {
             // Agreement succeeded
             if (decision) {
                 nextState = new WaitingState(alea, epoch);
-                logger.info("moving to Waiting state");
+                // logger.info("moving to Waiting state");
             }
             // Not enough people had the slot so agreement failed
             else {
                 nextState = new ProposingState(alea, epoch + 1);
-                logger.info("moving to Proposing state");
+                // logger.info("moving to Proposing state");
             }
 
             step.add(this.alea.setAgreementState(nextState));
         } else {
-            logger.info("tryPropose on OnGoingState aborted - ABA did not finish");
+            // logger.info("tryPropose on OnGoingState aborted - ABA did not finish");
         }
         return step;
     }

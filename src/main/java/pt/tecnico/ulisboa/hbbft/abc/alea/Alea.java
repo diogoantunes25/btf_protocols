@@ -83,6 +83,15 @@ public class Alea implements IAlea {
     // Map from binary agreement ids to execution logs
     private Map<BaPid, ExecutionLog<Boolean>> baLog = new ConcurrentHashMap<>();
 
+    // Debug information
+    private AtomicLong baStarted = new AtomicLong(0); // FIXME: Not counted correctly
+    private AtomicLong bcStarted = new AtomicLong(0);
+    private AtomicLong bcEnded = new AtomicLong(0);
+    private AtomicLong abcStarted = new AtomicLong(0);
+    private AtomicLong abcEnded = new AtomicLong(0);
+
+    private Thread summaryLogger;
+
     public Alea(Integer replicaId, NetworkInfo networkInfo, Params params) {
         this.replicaId = replicaId;
         this.networkInfo = networkInfo;
@@ -96,6 +105,10 @@ public class Alea implements IAlea {
 
         this.broadcastState = new AtomicInteger(0);
         this.agreementState = new ProposingState(this, 0L);
+
+        this.summaryLogger = new Thread(new SummaryLogger());
+        this.summaryLogger.start();
+        logger.info("alea summary logger started");
     }
 
     @Override
@@ -137,6 +150,9 @@ public class Alea implements IAlea {
 
     @Override
     public IBinaryAgreement getBinaryAgreementInstance(BaPid baPid) {
+        if (!baInstances.containsKey(baPid)) {
+            baStarted.incrementAndGet();
+        }
         this.baLog.computeIfAbsent(baPid, p -> new ExecutionLog<>(p.toString()));
         return this.baInstances.computeIfAbsent(baPid,
                 p -> new MoustefaouiBinaryAgreement(
@@ -169,7 +185,9 @@ public class Alea implements IAlea {
 
     @Override
     public Step<Block> handleInput(byte[] input) {
-        logger.info("Alea received input");
+        abcStarted.incrementAndGet();
+
+        // logger.info("Alea received input");
 
         Step<Block> step = new Step<>();
         if (params.getFault(replicaId) == Params.Fault.CRASH) return step;
@@ -312,6 +330,7 @@ public class Alea implements IAlea {
         // Place the (value, proof) pair in the corresponding queue slot
         queue.enqueue(slotId, value, proof);
 
+        // logger.info("tryProgress after handling filler message");
         return this.tryProgress();
     }
 
@@ -331,12 +350,12 @@ public class Alea implements IAlea {
         // logger.info("Delivered proposal from replica-{} for slot-{}", bcPid.getQueueId(), bcPid.getSlotId());
 
         // add pre-ordered request to the corresponding priority queue
-        logger.info("New command from VCBC -> enqueuing (queue from replica: {}, priority: {})", bcPid.getQueueId(), bcPid.getSlotId());
+        // logger.info("New command from VCBC -> enqueuing (queue from replica: {}, priority: {})", bcPid.getQueueId(), bcPid.getSlotId());
         PriorityQueue queue = queues.get(bcPid.getQueueId());
         VOutput output = bcStep.getOutput().firstElement();
         queue.enqueue(bcPid.getSlotId(), output.getValue(), output.getSignature());
         if (this.executed.contains(output.getValue())) {
-            logger.info("Command had already been executed -> dequeuing");
+            // logger.info("Command had already been executed -> dequeuing");
             queue.dequeue(bcPid.getSlotId());
         }
 
@@ -345,12 +364,14 @@ public class Alea implements IAlea {
 
         if (bcPid.getQueueId().equals(replicaId)) {
             // decrease the number of active broadcast instances
+            bcEnded.incrementAndGet();
             int bcActive = this.broadcastState.decrementAndGet();
             if (bcActive < this.params.getMaxConcurrentBroadcasts())
                 step.add(this.tryPropose());
         }
 
         // Move to ABA
+        // logger.info("trying progress after handling VBroadcast step");
         step.add(this.tryProgress());
 
         return step;
@@ -365,6 +386,7 @@ public class Alea implements IAlea {
             this.baLog.get(baPid).setResult(baStep.getOutput().firstElement());
         }
 
+        // logger.info("calling tryProgress after handling binary agreement step");
         step.add(this.tryProgress());
 
         return step;
@@ -382,25 +404,25 @@ public class Alea implements IAlea {
 
         // do not propose if the number of concurrent VCBC instances exceeds the maximum value in params
         if (this.broadcastState.get() >= this.params.getMaxConcurrentBroadcasts()) {
-            logger.info("broadcast maximum reached");
+            // logger.info("broadcast maximum reached");
             return new Step<>();
         }
 
         // do not propose if the pipeline offset exceed the maximum value in the params
         final long pipelineOffset = this.priority.get() - this.getQueues().get(replicaId).getHead();
         if (pipelineOffset >= params.getMaxPipelineOffset()) {
-            logger.info("pipeline offset exceed");
+            // logger.info("pipeline offset exceed");
             return new Step<>();
         }
 
         // group pending entries into a byte encoded batch
         List<byte[]> entries = new ArrayList<>();
 
-        logger.info("tryPropose started");
+        // logger.info("tryPropose started");
         // select entries from pending queue
         synchronized (this.pendingQueue) {
             if (this.pendingQueue.size() < params.getBatchSize()) {
-                logger.info("batch is not big enough");
+                // logger.info("batch is not big enough");
                 return new Step<>();
             }
             for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
@@ -409,13 +431,14 @@ public class Alea implements IAlea {
         }
 
         if (entries.isEmpty()) {
-            logger.info("tryPropose aborted - not enough pending requests to form a batch");
+            // logger.info("tryPropose aborted - not enough pending requests to form a batch");
             return new Step<>();
         }
 
         byte[] batch = encodeBatchEntries(entries);
 
         // input batch to VCBC
+        bcStarted.incrementAndGet();
         BcPid bcPid = new BcPid("VCBC", replicaId, priority.getAndIncrement());
         IVBroadcast instance = this.getVBroadcastInstance(bcPid);
         Step<VOutput> bcStep = instance.handleInput(batch);
@@ -427,14 +450,18 @@ public class Alea implements IAlea {
     }
 
     private Step<Block> tryProgress() {
-        logger.info("tryProgress called");
+        // logger.info("tryProgress called");
         Step<Block> step = this.agreementState.tryProgress();
 
         if (!step.getOutput().isEmpty()) {
-            logger.info("tryProgress was successful - there's something to output");
+            // logger.info("tryProgress was successful - there's something to output");
             for (Block block: step.getOutput()) {
                 executed.add(block.getContent());
+                this.abcEnded.incrementAndGet();
             }
+
+            // logger.info("The queues have {} batches", this.queues.values().stream().mapToLong(e -> e.count()).sum());
+
             step.add(this.tryPropose().getMessages());
         }
         return step;
@@ -633,6 +660,24 @@ public class Alea implements IAlea {
 
         for (int id=0; id<networkInfo.getN(); id++) {
             this.queues.put(id, new PriorityQueue(id));
+        }
+        this.summaryLogger.interrupt();
+        this.summaryLogger = new Thread(new SummaryLogger());
+        this.summaryLogger.start();
+    }
+
+    public class SummaryLogger implements Runnable {
+        private static final int SLEEP_PERIOD = 1000;
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(SLEEP_PERIOD);
+                    logger.info("(Alea summary) total:{}/{}, bc: {}/{}, ba started: {}/{}", abcEnded, abcStarted, bcEnded, bcStarted, abcEnded, baStarted);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
         }
     }
 }

@@ -18,9 +18,12 @@ public class PriorityQueue {
 
     private final Map<Long, Slot> slots = new TreeMap<>();
 
+    private Long count; // Number of elements in queue
+
     public PriorityQueue(Integer id) {
         this.id = id;
         this.head = 0L;
+        this.count = 0L;
     }
 
     public Integer getId() {
@@ -41,6 +44,7 @@ public class PriorityQueue {
     synchronized public void enqueue(long priority, byte[] element, byte[] proof) {
         Slot slot = new Slot(priority, element, proof);
         this.slots.putIfAbsent(priority, slot);
+        this.count++;
         // logger.info("[{}] enqueue called - contents: {}", this.id, this.slots);
     }
 
@@ -54,6 +58,7 @@ public class PriorityQueue {
         this.slots.get(priority).setRemoved();
         while (this.peek().isPresent() && this.peek().get().isRemoved()) {
             this.head += 1;
+            this.count--;
         }
         // logger.info("[{}] dequeue called - contents: {}", this.id, this.slots);
         return Optional.empty();
@@ -66,6 +71,7 @@ public class PriorityQueue {
                 if (entry.getKey().equals(this.head)) {
                     while (this.peek().isPresent() && this.peek().get().isRemoved())
                         this.head += 1;
+                        this.count--;
                 }
                 // logger.info("[{}] dequeue called - contents: {}", this.id, this.slots);
                 return Optional.of(entry.getValue());
@@ -101,4 +107,6 @@ public class PriorityQueue {
         return this.slots.values().stream()
                 .anyMatch(slot -> Arrays.equals(slot.getValue(), input));
     }
+
+    public long count() { return this.count; }
 }

@@ -56,6 +56,7 @@ pt/tecnico/ulisboa/hbbft/abc/honeybadger/crypto/NeverEncrypt.class
 pt/tecnico/ulisboa/hbbft/example/broadcast/echo/EchoBroadcastMessageEncoder$1.class
 pt/tecnico/ulisboa/hbbft/abc/alea/AleaMessage.class
 pt/tecnico/ulisboa/hbbft/broadcast/echo/EchoBroadcastMessageFactory.class
+pt/tecnico/ulisboa/hbbft/abc/alea/Alea$SummaryLogger.class
 pt/tecnico/ulisboa/hbbft/broadcast/avid/crypto/reedsolomon/OutputByteInputTableCodingLoop.class
 pt/tecnico/ulisboa/hbbft/binaryagreement/moustefaoui/ReceivedMessages.class
 pt/tecnico/ulisboa/hbbft/NetworkInfo$ValidatorSet.class
@@ -233,6 +234,7 @@ pt/tecnico/ulisboa/hbbft/example/binaryagreement/moustefaoui/BinaryAgreementRepl
 pt/tecnico/ulisboa/hbbft/subset/Subset.class
 pt/tecnico/ulisboa/hbbft/example/broadcast/avid/AvidBroadcastReplica.class
 pt/tecnico/ulisboa/hbbft/abc/dumbo/Params.class
+pt/tecnico/ulisboa/hbbft/subset/dumbo/Dumbo2Subset.class
 pt/tecnico/ulisboa/hbbft/binaryagreement/abba/messages/PreVoteMessage.class
 pt/tecnico/ulisboa/hbbft/abc/honeybadger/IHoneyBadger.class
 pt/tecnico/ulisboa/hbbft/agreement/vba/abba/Round.class
@@ -269,6 +271,7 @@ pt/tecnico/ulisboa/hbbft/agreement/vba/ValidatedBoolean.class
 pt/tecnico/ulisboa/hbbft/utils/threshsig/Dealer.class
 pt/tecnico/ulisboa/hbbft/agreement/vba/abba/messages/PreVoteMessage.class
 pt/tecnico/ulisboa/hbbft/abc/alea/epoch/EpochStateWaiting.class
+pt/tecnico/ulisboa/hbbft/subset/dumbo/Dumbo2SubsetFactory.class
 pt/tecnico/ulisboa/hbbft/abc/acs/AcsAtomicBroadcast.class
 pt/tecnico/ulisboa/hbbft/example/subset/Main$1.class
 pt/tecnico/ulisboa/hbbft/example/abc/MainTcp.class
