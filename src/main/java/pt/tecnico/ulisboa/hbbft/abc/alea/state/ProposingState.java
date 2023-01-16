@@ -28,6 +28,7 @@ public class ProposingState extends AgreementState {
             Optional<Slot> slot = queue.peek();
 
             IBinaryAgreement instance = this.getBaInstance();
+            alea.baStarted.incrementAndGet();
             Step<Boolean> baStep = instance.handleInput(slot.isPresent());
             step.add(baStep.getMessages());
 

@@ -28,6 +28,7 @@ public class WaitingState extends AgreementState {
             if (this.canProgress()) {
                 // Deliver
                 Slot slot = this.getQueue().peek().orElseThrow();
+                alea.baEnded.incrementAndGet();
 
                 Collection<byte[]> blockContents;
                 if (this.alea.getParams().getFault(this.getQueue().getId()) == Alea.Params.Fault.BYZANTINE) {

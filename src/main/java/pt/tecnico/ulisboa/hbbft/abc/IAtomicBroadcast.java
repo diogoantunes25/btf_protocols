@@ -12,4 +12,6 @@ import pt.tecnico.ulisboa.hbbft.ProtocolMessage;
 public interface IAtomicBroadcast extends IProtocol<byte[], Block, ProtocolMessage> {
 
     public void reset();
+
+    public default void stop() { }
 }
