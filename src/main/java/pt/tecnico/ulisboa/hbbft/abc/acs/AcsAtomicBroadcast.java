@@ -73,7 +73,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
     @Override
     public Step<Block> handleInput(byte[] input) {
-        // logger.info("handleInput - {}", input);
+        logger.info("handleInput");
         if (params.getFault(replicaId) == Params.Fault.CRASH) return new Step<>();
 
         // add input to the queue of pending transactions
@@ -132,7 +132,6 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
         Collection<byte[]> proposal;
 
         proposal = this.queue.get();
-        // logger.info("trying to propose {}", proposal);
         byte[] encoded = this.encodeBatchEntries(proposal);
         // logger.info("proposal encoded to {}", encoded);
 
@@ -141,6 +140,7 @@ public class AcsAtomicBroadcast implements IAtomicBroadcast {
 
         // input encoded proposal into the current epoch
         Epoch epoch = this.getEpoch(this.epoch);
+        logger.info("proposing", proposal);
         Step<Batch> step = epoch.handleInput(encoded);
         this.hasInput = true;
 

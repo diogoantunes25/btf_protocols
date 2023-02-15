@@ -131,7 +131,6 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
     }
 
     private Step<Batch> tryOutput() {
-        // logger.info("tryOutput");
 
         Step<Batch> step = new Step<>();
 
@@ -146,6 +145,7 @@ public class Epoch implements IProtocol<byte[], Batch, ProtocolMessage> {
         Batch batch = new Batch(this.epochId, this.acs.deliver().orElseThrow().getEntries());
 
         // output batch
+        logger.info("epoch has output");
         this.decidedValue = batch;
         step.add(batch);
 

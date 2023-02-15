@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="pt.tecnico.ulisboa.hbbft.abc.byzness.state.ProposingStateTest" time="0.033" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="pt.tecnico.ulisboa.hbbft.abc.byzness.state.ProposingStateTest" time="0.028" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -13,7 +13,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-oracle/lib"/>
-    <property name="sun.java.command" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter1637062407813029613.jar /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire 2023-01-11T10-27-44_160-jvmRun1 surefire3110326495460452850tmp surefire_02289243861849086083tmp"/>
+    <property name="sun.java.command" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter4675343493310761820.jar /home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire 2023-02-11T11-15-29_044-jvmRun1 surefire15804939542397619039tmp surefire_0359407945504265606tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/test-classes:/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/classes:/home/diogo/.m2/repository/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar:/home/diogo/.m2/repository/org/slf4j/slf4j-simple/1.7.30/slf4j-simple-1.7.30.jar:/home/diogo/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.7.0/junit-jupiter-engine-5.7.0.jar:/home/diogo/.m2/repository/org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar:/home/diogo/.m2/repository/org/junit/platform/junit-platform-engine/1.7.0/junit-platform-engine-1.7.0.jar:/home/diogo/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/diogo/.m2/repository/org/junit/platform/junit-platform-commons/1.7.0/junit-platform-commons-1.7.0.jar:/home/diogo/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.7.0/junit-jupiter-api-5.7.0.jar:/home/diogo/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.7.0/junit-jupiter-params-5.7.0.jar:/home/diogo/.m2/repository/org/mockito/mockito-core/2.23.0/mockito-core-2.23.0.jar:/home/diogo/.m2/repository/net/bytebuddy/byte-buddy/1.9.0/byte-buddy-1.9.0.jar:/home/diogo/.m2/repository/net/bytebuddy/byte-buddy-agent/1.9.0/byte-buddy-agent-1.9.0.jar:/home/diogo/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/home/diogo/.m2/repository/org/mockito/mockito-junit-jupiter/2.23.0/mockito-junit-jupiter-2.23.0.jar:/home/diogo/.m2/repository/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar:/home/diogo/.m2/repository/redis/clients/jedis/3.5.1/jedis-3.5.1.jar:/home/diogo/.m2/repository/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -28,12 +28,12 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
-    <property name="surefire.real.class.path" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter1637062407813029613.jar"/>
+    <property name="surefire.real.class.path" value="/home/diogo/MEGA/2 %7c LEIC-A/Projeto BIG/Study material/code/alea-code/alea-protocols/target/surefire/surefirebooter4675343493310761820.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.1+12-LTS-39"/>
     <property name="user.name" value="diogo"/>
     <property name="path.separator" value=":"/>
-    <property name="os.version" value="5.15.0-57-generic"/>
+    <property name="os.version" value="5.15.0-58-generic"/>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
@@ -53,6 +53,6 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="tryProgressState_Test" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.state.ProposingStateTest" time="0.02"/>
+  <testcase name="tryProgressState_Test" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.state.ProposingStateTest" time="0.015"/>
   <testcase name="tryProgress_whenCannotProgress_thenDoNotProgress" classname="pt.tecnico.ulisboa.hbbft.abc.byzness.state.ProposingStateTest" time="0.012"/>
 </testsuite>

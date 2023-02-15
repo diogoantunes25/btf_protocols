@@ -394,7 +394,10 @@ public class Alea implements IAlea {
      * Try to propose a value to be included in PriorityQueues
      * @return
      */
-    private synchronized Step<Block> tryPropose() {
+    private Step<Block> tryPropose() {
+
+        List<byte[]> entries;
+
         // do not propose if there is nothing to propose
         if (this.pendingQueue.isEmpty()) {
             return new Step<>();
@@ -414,16 +417,16 @@ public class Alea implements IAlea {
         }
 
         // group pending entries into a byte encoded batch
-        List<byte[]> entries = new ArrayList<>();
+        entries = new ArrayList<>();
 
-        // logger.info("tryPropose started");
         // select entries from pending queue
+        if (this.pendingQueue.size() < params.getBatchSize()) {
+            // logger.info("batch is not big enough");
+            return new Step<>();
+        }
+
         synchronized (this.pendingQueue) {
-            if (this.pendingQueue.size() < params.getBatchSize()) {
-                // logger.info("batch is not big enough");
-                return new Step<>();
-            }
-            for (int i=0; i < Math.min(params.getBatchSize(), this.pendingQueue.size()); i++) {
+            for (int i=0; i < params.getBatchSize(); i++) {
                 entries.add(this.pendingQueue.poll());
             }
         }
